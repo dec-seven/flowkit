@@ -3,10 +3,16 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "scripts": { "demo": "node ./src/index.js" },
+  "scripts": { "demo": "node ./src/index.js", "dev": "vite", "build": "vite build" },
   "dependencies": {
     "@flowkit/adapter-mock": "workspace:*",
     "@flowkit/core": "workspace:*",
-    "@flowkit/headless": "workspace:*"
+    "@flowkit/headless": "workspace:*",
+    "@flowkit/vue2": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue2": "^2.3.3",
+    "vite": "^6.1.0",
+    "vue": "^2.7.16"
   }
 }
