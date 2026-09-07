@@ -3,7 +3,8 @@ function stateOf(props) { return props.client?.getSnapshot?.() ?? { tasks: [], s
 export const ApprovalTaskList = {
   name: 'ApprovalTaskList',
   props: { client: { type: Object, required: true } },
-  created() { this.unsubscribe = this.client.subscribe((state) => { this.state = state; }); this.state = stateOf(this); this.client.loadTasks(); },
+  data() { return { state: stateOf(this), unsubscribe: null }; },
+  created() { this.unsubscribe = this.client.subscribe((state) => { this.state = state; }); this.client.loadTasks(); },
   beforeDestroy() { this.unsubscribe?.(); },
   methods: { open(task) { this.client.openTask(task.id); this.$emit('select', task); } },
   render(h) {
