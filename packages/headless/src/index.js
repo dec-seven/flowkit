@@ -64,3 +64,20 @@ export class ApprovalStore {
 }
 
 export function createApprovalStore(adapter) { return new ApprovalStore(adapter); }
+
+/** Public client facade carrying actor and optimistic-concurrency metadata. */
+export function createApprovalClient({ adapter, actor }) {
+  const store = new ApprovalStore(adapter);
+  return {
+    store,
+    actor,
+    loadTasks: (query = {}) => store.loadTasks({ ...query, assigneeId: query.assigneeId ?? actor?.id }),
+    openTask: (taskId) => store.openTask(taskId),
+    getSnapshot: () => store.getSnapshot(),
+    subscribe: (listener) => store.subscribe(listener),
+    executeAction: (input) => {
+      if (!input?.idempotencyKey) throw new Error('idempotencyKey is required');
+      return store.submitAction(input.action ?? input.actionKey, { comment: input.comment, formValues: input.dataPatch });
+    },
+  };
+}
