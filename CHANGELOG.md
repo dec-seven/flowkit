@@ -11,3 +11,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Initial M0 repository structure.
 - Core protocol and adapter contract documentation.
 - pnpm workspace and repository verification script.
+- Minimal approval flow with core constants, headless store, deterministic mock adapter, and runnable example.

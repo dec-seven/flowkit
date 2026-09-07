@@ -8,10 +8,30 @@ importers:
 
   .: {}
 
-  examples/mock-vue2: {}
+  examples/mock-vue2:
+    dependencies:
+      '@flowkit/adapter-mock':
+        specifier: workspace:*
+        version: link:../../packages/adapter-mock
+      '@flowkit/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@flowkit/headless':
+        specifier: workspace:*
+        version: link:../../packages/headless
+
+  packages/adapter-mock:
+    dependencies:
+      '@flowkit/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/core: {}
 
   packages/form: {}
 
-  packages/headless: {}
+  packages/headless:
+    dependencies:
+      '@flowkit/core':
+        specifier: workspace:*
+        version: link:../core

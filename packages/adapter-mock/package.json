@@ -1,5 +1,5 @@
 {
-  "name": "@flowkit/headless",
+  "name": "@flowkit/adapter-mock",
   "version": "0.0.0",
   "private": true,
   "type": "module",

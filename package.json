@@ -8,6 +8,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "verify": "node scripts/check-workspace.mjs"
+    "verify": "node scripts/check-workspace.mjs",
+    "demo": "pnpm --filter @flowkit/example-mock-vue2 demo"
   }
 }

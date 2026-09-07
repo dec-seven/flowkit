@@ -13,7 +13,7 @@ The first milestone is intentionally small:
 
 ## Status
 
-FlowKit is in the M0 repository setup phase. The package structure and protocol documents are being stabilized before implementation begins.
+FlowKit now has a first end-to-end local flow: the mock adapter supplies inbox tasks, while the headless layer loads tasks, opens a detail, submits an approval action, and refreshes history. A production backend adapter is still required for real deployments.
 
 ## Packages
 
@@ -21,6 +21,7 @@ FlowKit is in the M0 repository setup phase. The package structure and protocol 
 | --- | --- |
 | `@flowkit/core` | Core workflow types, task protocol, and state definitions. |
 | `@flowkit/headless` | Framework-agnostic workflow state orchestration. |
+| `@flowkit/adapter-mock` | Deterministic in-memory tasks and approval actions with no network dependency. |
 | `@flowkit/form` | Approval form schema, rendering contract, and validation model. |
 
 The full target layout also includes adapters, Vue packages, UI packages, designers, examples, and documentation. Those packages will be added as their milestones start.
@@ -32,7 +33,10 @@ FlowKit uses [pnpm](https://pnpm.io/) workspaces.
 ```bash
 pnpm install
 pnpm verify
+pnpm demo
 ```
+
+`pnpm demo` runs the full local sequence: load the inbox, open a task, approve it, then refresh the task list and history. The runner is in `examples/mock-vue2/src/index.js`; a Vue 2 component can call the same headless methods.
 
 ## Repository conventions
 

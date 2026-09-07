@@ -1,5 +1,12 @@
 {
   "name": "@flowkit/example-mock-vue2",
   "version": "0.0.0",
-  "private": true
+  "private": true,
+  "type": "module",
+  "scripts": { "demo": "node ./src/index.js" },
+  "dependencies": {
+    "@flowkit/adapter-mock": "workspace:*",
+    "@flowkit/core": "workspace:*",
+    "@flowkit/headless": "workspace:*"
+  }
 }

@@ -15,7 +15,7 @@ FlowKit 是一个面向企业 Web 应用的适配器驱动、Headless 审批流 
 
 ## 当前状态
 
-FlowKit 处于 M0 仓库搭建阶段。当前重点是先稳定包结构和协议文档，再开始具体实现。
+FlowKit 已打通第一个最小闭环：Mock Adapter 提供待办任务，headless 层负责加载列表、打开详情、提交审批动作并刷新审批历史。当前实现用于本地开发，生产环境仍需接入真实后端 Adapter。
 
 ## 包结构
 
@@ -23,6 +23,7 @@ FlowKit 处于 M0 仓库搭建阶段。当前重点是先稳定包结构和协�
 | --- | --- |
 | `@flowkit/core` | 核心工作流类型、任务协议和状态定义。 |
 | `@flowkit/headless` | 与框架无关的工作流状态编排层。 |
+| `@flowkit/adapter-mock` | 无网络依赖的确定性 Mock 任务和审批动作。 |
 | `@flowkit/form` | 审批表单 Schema、渲染协议和校验模型。 |
 
 完整目标结构还会包含 Adapter、Vue 包、UI 包、设计器、示例和文档。这些包会在对应里程碑启动时逐步加入。
@@ -34,7 +35,10 @@ FlowKit 使用 [pnpm](https://pnpm.io/) workspaces。
 ```bash
 pnpm install
 pnpm verify
+pnpm demo
 ```
+
+`pnpm demo` 会执行“加载待办 → 打开任务 → 同意 → 刷新列表和历史”的完整流程。示例代码位于 `examples/mock-vue2/src/index.js`；Vue 2 组件可以直接复用同一组 headless 方法。
 
 ## 仓库规范
 
