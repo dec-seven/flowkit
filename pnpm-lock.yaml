@@ -35,3 +35,19 @@ importers:
       '@flowkit/core':
         specifier: workspace:*
         version: link:../core
+
+  packages/vue2:
+    dependencies:
+      vue:
+        specifier: ^2.6.0
+        version: 2.6.0
+
+packages:
+
+  vue@2.6.0:
+    resolution: {integrity: sha512-QSKHpmV17wqDmS5jVCc8X9LyTcCCQP4M1RTRpLBO+hRveePduJaGz1FGjVpRVcE6cKYbhsooz6RW7GWLGNjKGg==}
+    deprecated: Vue 2 has reached EOL and is no longer actively maintained. See https://v2.vuejs.org/eol/ for more details.
+
+snapshots:
+
+  vue@2.6.0: {}
