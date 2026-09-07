@@ -36,3 +36,17 @@ export function getEnabledAction(task, actionKey) {
 export function isTaskOpen(task) {
   return task?.status === TASK_STATUS.TODO || task?.status === TASK_STATUS.CLAIMED;
 }
+
+/** Apply the local task/instance result for the three M0 actions. */
+export function applyTaskAction(task, instance, actionKey, completedAt) {
+  if (!isTaskOpen(task)) throw new Error('Task is already completed');
+  if (!getEnabledAction(task, actionKey)) throw new Error(`Action is not available: ${actionKey}`);
+  if (actionKey === ACTION_KEY.RETURN) {
+    return { task: { ...task, status: TASK_STATUS.TODO, completedAt: undefined }, instance };
+  }
+  const nextInstanceStatus = actionKey === ACTION_KEY.REJECT ? INSTANCE_STATUS.TERMINATED : INSTANCE_STATUS.COMPLETED;
+  return {
+    task: { ...task, status: TASK_STATUS.DONE, completedAt },
+    instance: instance ? { ...instance, status: nextInstanceStatus, endedAt: completedAt } : instance,
+  };
+}
