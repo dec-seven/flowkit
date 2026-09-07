@@ -10,6 +10,7 @@
   "scripts": {
     "verify": "node scripts/check-workspace.mjs",
     "demo": "pnpm --filter @flowkit/example-mock-vue2 demo",
+    "dev": "pnpm --filter @flowkit/example-mock-vue2 dev",
     "test": "node packages/core/src/index.test.js && node packages/form/src/index.test.js",
     "build:demo": "pnpm --filter @flowkit/example-mock-vue2 build"
   }
