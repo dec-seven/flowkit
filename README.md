@@ -22,6 +22,7 @@ FlowKit now has a first end-to-end local flow: the mock adapter supplies inbox t
 | `@flowkit/core` | Core workflow types, task protocol, and state definitions. |
 | `@flowkit/headless` | Framework-agnostic workflow state orchestration. |
 | `@flowkit/adapter-mock` | Deterministic in-memory tasks and approval actions with no network dependency. |
+| `@flowkit/vue2` | Minimal Vue 2 approval components backed by the headless API. |
 | `@flowkit/form` | Approval form schema, rendering contract, and validation model. |
 
 The full target layout also includes adapters, Vue packages, UI packages, designers, examples, and documentation. Those packages will be added as their milestones start.

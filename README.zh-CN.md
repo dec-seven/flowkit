@@ -24,6 +24,7 @@ FlowKit 已打通第一个最小闭环：Mock Adapter 提供待办任务，headl
 | `@flowkit/core` | 核心工作流类型、任务协议和状态定义。 |
 | `@flowkit/headless` | 与框架无关的工作流状态编排层。 |
 | `@flowkit/adapter-mock` | 无网络依赖的确定性 Mock 任务和审批动作。 |
+| `@flowkit/vue2` | 基于 Headless API 的 Vue 2 最小审批组件集。 |
 | `@flowkit/form` | 审批表单 Schema、渲染协议和校验模型。 |
 
 完整目标结构还会包含 Adapter、Vue 包、UI 包、设计器、示例和文档。这些包会在对应里程碑启动时逐步加入。

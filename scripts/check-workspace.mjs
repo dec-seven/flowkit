@@ -8,6 +8,7 @@ const requiredPaths = [
   'packages/core/package.json',
   'packages/headless/package.json',
   'packages/adapter-mock/package.json',
+  'packages/vue2/package.json',
   'packages/form/package.json',
   'examples/mock-vue2/package.json',
 ];
@@ -16,6 +17,7 @@ const workspaceNames = [
   '@flowkit/core',
   '@flowkit/headless',
   '@flowkit/adapter-mock',
+  '@flowkit/vue2',
   '@flowkit/form',
   '@flowkit/example-mock-vue2',
 ];
