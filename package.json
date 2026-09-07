@@ -9,6 +9,7 @@
   },
   "scripts": {
     "verify": "node scripts/check-workspace.mjs",
-    "demo": "pnpm --filter @flowkit/example-mock-vue2 demo"
+    "demo": "pnpm --filter @flowkit/example-mock-vue2 demo",
+    "test": "node packages/core/src/index.test.js"
   }
 }
