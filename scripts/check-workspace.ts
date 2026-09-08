@@ -1,4 +1,4 @@
-import { access } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 // M0 requires these files to exist so accidental deletion fails CI.
@@ -23,7 +23,7 @@ const workspaceNames = [
 ];
 
 const root = process.cwd();
-const missing = [];
+const missing: string[] = [];
 
 // Collect every missing path before failing so CI reports the full list.
 for (const relativePath of requiredPaths) {
@@ -43,8 +43,8 @@ const packageManifests = await Promise.all(
   requiredPaths
     .filter((relativePath) => relativePath.endsWith('package.json'))
     .map(async (relativePath) => {
-      const manifest = await import(path.join(root, relativePath), { with: { type: 'json' } });
-      return manifest.default.name;
+      const contents = await readFile(path.join(root, relativePath), 'utf8');
+      return (JSON.parse(contents) as { name?: string }).name;
     }),
 );
 

@@ -11,8 +11,32 @@
     </div>
   </main>
 </template>
-<script>
-export default { name: 'App', props: { client: Object }, data: () => ({ selected: null, snapshot: { history: [] } }), created() { this.snapshot = this.client.getSnapshot(); this.unsubscribe = this.client.subscribe((state) => { this.snapshot = state; this.selected = state.selectedTask || this.selected; }); }, beforeDestroy() { this.unsubscribe?.(); } };
+<script lang="ts">
+import Vue, { type PropType } from 'vue';
+import type { ApprovalTask } from '@flowkit/core';
+import type { ApprovalClient, ApprovalState, Unsubscribe } from '@flowkit/headless';
+
+export default Vue.extend({
+  name: 'App',
+  props: { client: { type: Object as PropType<ApprovalClient>, required: true } },
+  data(): { selected: ApprovalTask | null; snapshot: ApprovalState; unsubscribe: Unsubscribe | null } {
+    return {
+      selected: null,
+      snapshot: { tasks: [], selectedTask: null, history: [], loading: false, error: null },
+      unsubscribe: null,
+    };
+  },
+  created() {
+    this.snapshot = this.client.getSnapshot();
+    this.unsubscribe = this.client.subscribe((state) => {
+      this.snapshot = state;
+      this.selected = state.selectedTask || this.selected;
+    });
+  },
+  beforeDestroy() {
+    this.unsubscribe?.();
+  },
+});
 </script>
 <style>
 body { margin: 0; background: #f5f7fb; font-family: system-ui, sans-serif; color: #1f2937; }

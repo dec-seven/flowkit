@@ -39,7 +39,7 @@ pnpm verify
 pnpm demo
 ```
 
-`pnpm demo` 会执行“加载待办 → 打开任务 → 同意 → 刷新列表和历史”的完整流程。示例代码位于 `examples/mock-vue2/src/index.js`；Vue 2 组件可以直接复用同一组 headless 方法。
+`pnpm demo` 会执行“加载待办 → 打开任务 → 同意 → 刷新列表和历史”的完整流程。示例代码位于 `examples/mock-vue2/src/index.ts`；Vue 2 组件可以直接复用同一组 headless 方法。
 
 ## 仓库规范
 

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "scripts": { "demo": "node ./src/index.js", "dev": "vite", "build": "vite build" },
+  "scripts": { "demo": "node ./src/index.ts", "dev": "vite", "build": "vite build" },
   "dependencies": {
     "@flowkit/adapter-mock": "workspace:*",
     "@flowkit/core": "workspace:*",

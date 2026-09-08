@@ -37,7 +37,7 @@ pnpm verify
 pnpm demo
 ```
 
-`pnpm demo` runs the full local sequence: load the inbox, open a task, approve it, then refresh the task list and history. The runner is in `examples/mock-vue2/src/index.js`; a Vue 2 component can call the same headless methods.
+`pnpm demo` runs the full local sequence: load the inbox, open a task, approve it, then refresh the task list and history. The runner is in `examples/mock-vue2/src/index.ts`; a Vue 2 component can call the same headless methods.
 
 ## Repository conventions
 

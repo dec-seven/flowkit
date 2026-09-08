@@ -8,10 +8,16 @@
     "node": ">=22"
   },
   "scripts": {
-    "verify": "node scripts/check-workspace.mjs",
+    "verify": "node scripts/check-workspace.ts && pnpm typecheck",
+    "typecheck": "vue-tsc --noEmit",
     "demo": "pnpm --filter @flowkit/example-mock-vue2 demo",
     "dev": "pnpm --filter @flowkit/example-mock-vue2 dev",
-    "test": "node packages/core/src/index.test.js && node packages/form/src/index.test.js",
+    "test": "node packages/core/src/index.test.ts && node packages/form/src/index.test.ts",
     "build:demo": "pnpm --filter @flowkit/example-mock-vue2 build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.2",
+    "vue-tsc": "^3.0.7"
   }
 }
