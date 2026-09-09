@@ -15,6 +15,7 @@ function stateOf(props: Partial<ClientProps>): ApprovalState {
     props.client?.getSnapshot?.() ?? {
       tasks: [],
       selectedTask: null,
+      selectedInstance: null,
       history: [],
       loading: false,
       error: null,

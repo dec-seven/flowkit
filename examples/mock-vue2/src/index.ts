@@ -8,7 +8,10 @@ await store.loadTasks({ status: 'todo', assigneeId: 'user-approver' });
 const firstTask = store.getSnapshot().tasks[0];
 if (!firstTask) throw new Error('The mock adapter did not return a task');
 await store.openTask(firstTask.id);
-await store.submitAction(ACTION_KEY.APPROVE, { comment: '预算和用途已确认' });
+await store.submitAction(ACTION_KEY.APPROVE, {
+  idempotencyKey: 'demo-approve-purchase-001',
+  comment: '预算和用途已确认',
+});
 
 const snapshot = store.getSnapshot();
 console.log(`待办数：${snapshot.tasks.filter((task) => task.status === 'todo').length}`);

@@ -37,6 +37,8 @@ export type ActionKey = (typeof ACTION_KEY)[keyof typeof ACTION_KEY];
 export const ERROR_CODE = Object.freeze({
   INVALID_ACTION: 'FLOW_INVALID_ACTION',
   FORBIDDEN: 'FLOW_FORBIDDEN',
+  AUTH_EXPIRED: 'FLOW_AUTH_EXPIRED',
+  CAPABILITY_UNSUPPORTED: 'FLOW_CAPABILITY_UNSUPPORTED',
   CONFLICT: 'FLOW_CONFLICT',
   NOT_FOUND: 'FLOW_NOT_FOUND',
   TRIGGER_FAILED: 'FLOW_TRIGGER_FAILED',
@@ -59,6 +61,10 @@ export interface WorkflowInstance {
   businessKey?: string;
   title: string;
   status: InstanceStatus;
+  /** Monotonically increasing server version used for optimistic concurrency. */
+  revision: number;
+  /** Set only on a replayed start command response; not persisted as instance state. */
+  replayed?: boolean;
   startedAt: string;
   endedAt?: string;
   startedBy?: string;
@@ -89,10 +95,14 @@ export interface ApprovalTask {
   assigneeName?: string;
   candidateGroupIds?: string[];
   status: TaskStatus;
+  /** Monotonically increasing server version used for optimistic concurrency. */
+  revision: number;
   priority: TaskPriority;
   createdAt: string;
   dueAt?: string;
   completedAt?: string;
+  /** Set only on a replayed command response; not persisted as task state. */
+  replayed?: boolean;
   actions: ApprovalAction[];
   formData?: ApprovalFormData;
 }
@@ -130,15 +140,59 @@ export interface TaskQuery {
 export interface SubmitActionInput {
   taskId: string;
   actionKey: ActionKey;
+  /** Unique key for one logical command; retries with the same key are replay-safe. */
+  idempotencyKey: string;
+  /** Versions observed by the caller before issuing this command. */
+  expectedTaskRevision: number;
+  expectedInstanceRevision: number;
   comment?: string;
   formValues?: Record<string, unknown>;
 }
 
+export interface StartFlowInput {
+  definitionKey: string;
+  definitionVersion?: number;
+  businessKey?: string;
+  title?: string;
+  formValues?: Record<string, unknown>;
+  idempotencyKey: string;
+}
+
+export interface ConflictDetails {
+  resource: 'task' | 'instance';
+  currentTaskRevision: number;
+  currentInstanceRevision: number;
+  retryable: boolean;
+  expectedTaskRevision?: number;
+  expectedInstanceRevision?: number;
+  taskId?: string;
+  instanceId?: string;
+  [property: string]: unknown;
+}
+
+export interface AdapterCapabilities {
+  /** Whether retries with the same idempotency key replay the first result. */
+  idempotency: boolean;
+  /** Whether expected task/instance revisions are checked atomically. */
+  optimisticConcurrency: boolean;
+  startFlow?: boolean;
+  definitions?: boolean;
+  formSchemas?: boolean;
+  parallel?: boolean;
+  multiInstance?: boolean;
+  timeout?: boolean;
+}
+
 export interface FlowAdapter {
+  readonly capabilities: AdapterCapabilities;
   listInstances(query?: InstanceQuery): Promise<Page<WorkflowInstance>>;
   listTasks(query?: TaskQuery): Promise<Page<ApprovalTask>>;
+  getInstance(instanceId: string): Promise<WorkflowInstance>;
+  getDefinition(definitionId: string, version: number): Promise<WorkflowDefinition>;
+  getFormSchema(schemaId: string, version: number): Promise<FormSchemaLike>;
   getTask(taskId: string): Promise<ApprovalTask>;
   getHistory(instanceId: string): Promise<ApprovalHistoryItem[]>;
+  startFlow(input: StartFlowInput): Promise<WorkflowInstance>;
   submitAction(input: SubmitActionInput): Promise<ApprovalTask>;
 }
 
@@ -156,6 +210,7 @@ export interface FormFieldDefinition {
 }
 
 export interface FormSchemaLike {
+  ref?: { schemaId: string; version: number };
   fields?: FormFieldDefinition[];
 }
 
@@ -216,16 +271,26 @@ export function applyTaskAction(
   }
   if (actionKey === ACTION_KEY.RETURN) {
     return {
-      task: { ...task, status: TASK_STATUS.TODO, completedAt: undefined },
-      instance,
+      task: {
+        ...task,
+        status: TASK_STATUS.TODO,
+        revision: task.revision + 1,
+        completedAt: undefined,
+      },
+      instance: instance ? { ...instance, revision: instance.revision + 1 } : instance,
     };
   }
   const nextInstanceStatus =
     actionKey === ACTION_KEY.REJECT ? INSTANCE_STATUS.TERMINATED : INSTANCE_STATUS.COMPLETED;
   return {
-    task: { ...task, status: TASK_STATUS.DONE, completedAt },
+    task: { ...task, status: TASK_STATUS.DONE, revision: task.revision + 1, completedAt },
     instance: instance
-      ? { ...instance, status: nextInstanceStatus, endedAt: completedAt }
+      ? {
+          ...instance,
+          status: nextInstanceStatus,
+          revision: instance.revision + 1,
+          endedAt: completedAt,
+        }
       : instance,
   };
 }

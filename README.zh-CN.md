@@ -15,7 +15,7 @@ FlowKit 是一个面向企业 Web 应用的适配器驱动、Headless 审批流 
 
 ## 当前状态
 
-FlowKit 已打通第一个最小闭环：Mock Adapter 提供待办任务，headless 层负责加载列表、打开详情、提交审批动作并刷新审批历史。当前实现用于本地开发，生产环境仍需接入真实后端 Adapter。
+FlowKit 已打通第一个最小闭环：Mock Adapter 提供待办任务，headless 层负责加载列表、打开详情、提交审批动作并刷新审批历史。M5 已提供通用 REST Adapter；真实部署时仍需配置后端地址、鉴权和能力声明。
 
 ## 包结构
 
@@ -24,6 +24,7 @@ FlowKit 已打通第一个最小闭环：Mock Adapter 提供待办任务，headl
 | `@flowkit/core` | 核心工作流类型、任务协议和状态定义。 |
 | `@flowkit/headless` | 与框架无关的工作流状态编排层。 |
 | `@flowkit/adapter-mock` | 无网络依赖的确定性 Mock 任务和审批动作。 |
+| `@flowkit/adapter-rest` | 将通用 REST 审批服务映射到 FlowKit 协议。 |
 | `@flowkit/vue2` | 基于 Headless API 的 Vue 2 最小审批组件集。 |
 | `@flowkit/form` | 审批表单 Schema、渲染协议和校验模型。 |
 
@@ -40,6 +41,25 @@ pnpm demo
 ```
 
 `pnpm demo` 会执行“加载待办 → 打开任务 → 同意 → 刷新列表和历史”的完整流程。示例代码位于 `examples/mock-vue2/src/index.ts`；Vue 2 组件可以直接复用同一组 headless 方法。
+
+REST 接入示例：
+
+```ts
+import { createRestAdapter } from '@flowkit/adapter-rest';
+import { createApprovalClient } from '@flowkit/headless';
+
+const client = createApprovalClient({
+  adapter: createRestAdapter({
+    baseUrl: 'https://approval.example.com/api',
+    getToken: () => sessionStorage.getItem('access_token') ?? undefined,
+    // 只有后端确实原子支持这两项时才开启；默认值是 false。
+    capabilities: { idempotency: true, optimisticConcurrency: true },
+  }),
+  actor: { id: 'user-001' },
+});
+```
+
+动作提交会自动携带当前任务和实例的 `revision`。如果后端返回 409，Headless 会暴露 `FLOW_CONFLICT`；不要直接把页面状态改成“已完成”，应先重新读取任务后再决定是否重试。
 
 ## 仓库规范
 

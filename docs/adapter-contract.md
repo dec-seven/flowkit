@@ -8,15 +8,20 @@ An approval adapter should implement:
 
 ```ts
 type FlowAdapter = {
+  readonly capabilities: AdapterCapabilities;
   listInstances(query: InstanceQuery): Promise<Page<WorkflowInstance>>;
   listTasks(query: TaskQuery): Promise<Page<ApprovalTask>>;
+  getInstance(instanceId: string): Promise<WorkflowInstance>;
+  getDefinition(definitionId: string, version: number): Promise<WorkflowDefinition>;
+  getFormSchema(schemaId: string, version: number): Promise<FormSchemaLike>;
   getTask(taskId: string): Promise<ApprovalTask>;
   getHistory(instanceId: string): Promise<ApprovalHistoryItem[]>;
+  startFlow(input: StartFlowInput): Promise<WorkflowInstance>;
   submitAction(input: SubmitActionInput): Promise<ApprovalTask>;
 };
 ```
 
-The exact error and paging shapes will be finalized in M0. The contract is intentionally small so that REST, Flowable, and mock adapters can share the same frontend behavior.
+All adapters return the same canonical models, `Page<T>` shape, and `FlowError` codes. Transport and engine DTOs must not escape the adapter boundary.
 
 ## Adapter rules
 
@@ -25,6 +30,25 @@ The exact error and paging shapes will be finalized in M0. The contract is inten
 3. Do not expose engine-specific task IDs through component APIs.
 4. Do not silently enable actions that the backend has not authorized.
 5. Return user-facing errors in a consistent structure.
+6. Declare idempotency and optimistic-concurrency support; do not infer support from request fields alone.
+7. Convert an HTTP or engine conflict into `FLOW_CONFLICT` with both current revisions.
+
+## Generic REST mapping
+
+`@flowkit/adapter-rest` uses these default endpoints:
+
+| FlowAdapter method | REST endpoint |
+| --- | --- |
+| `getDefinition` | `GET /flow-definitions/{id}/versions/{version}` |
+| `getFormSchema` | `GET /form-schemas/{id}/versions/{version}` |
+| `startFlow` | `POST /flow-instances` |
+| `getInstance` | `GET /flow-instances/{instanceId}` |
+| `listTasks` | `GET /tasks` |
+| `getTask` | `GET /tasks/{taskId}` |
+| `getHistory` | `GET /flow-instances/{instanceId}/events` |
+| `submitAction` | `POST /tasks/{taskId}/actions` |
+
+Its endpoint map is configurable, but its output protocol is not. It maps common response wrappers (`data`, `result`), paging names (`items`, `records`, `content`), event fields, 401 authentication expiry, 403, 404, and 409 conflict responses into FlowKit types.
 
 ## Planned adapters
 

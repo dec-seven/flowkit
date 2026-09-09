@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- M5 generic REST adapter with endpoint mapping, DTO normalization, pagination, auth-expiry and conflict error conversion.
+- Idempotency keys, task/instance revisions, conflict details, adapter capabilities, and start/definition/form query methods.
+- Mock, headless, and REST contract coverage for replay and optimistic-concurrency behavior.
 - Initial M0 repository structure.
 - Core protocol and adapter contract documentation.
 - pnpm workspace and repository verification script.

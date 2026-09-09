@@ -13,7 +13,7 @@ The first milestone is intentionally small:
 
 ## Status
 
-FlowKit now has a first end-to-end local flow: the mock adapter supplies inbox tasks, while the headless layer loads tasks, opens a detail, submits an approval action, and refreshes history. A production backend adapter is still required for real deployments.
+FlowKit now has a first end-to-end local flow: the mock adapter supplies inbox tasks, while the headless layer loads tasks, opens a detail, submits an approval action, and refreshes history. M5 adds a generic REST adapter; production deployments still need their backend URL, auth, and capability declaration configured.
 
 ## Packages
 
@@ -22,6 +22,7 @@ FlowKit now has a first end-to-end local flow: the mock adapter supplies inbox t
 | `@flowkit/core` | Core workflow types, task protocol, and state definitions. |
 | `@flowkit/headless` | Framework-agnostic workflow state orchestration. |
 | `@flowkit/adapter-mock` | Deterministic in-memory tasks and approval actions with no network dependency. |
+| `@flowkit/adapter-rest` | Maps a generic REST approval service to the FlowKit protocol. |
 | `@flowkit/vue2` | Minimal Vue 2 approval components backed by the headless API. |
 | `@flowkit/form` | Approval form schema, rendering contract, and validation model. |
 
@@ -38,6 +39,25 @@ pnpm demo
 ```
 
 `pnpm demo` runs the full local sequence: load the inbox, open a task, approve it, then refresh the task list and history. The runner is in `examples/mock-vue2/src/index.ts`; a Vue 2 component can call the same headless methods.
+
+REST integration:
+
+```ts
+import { createRestAdapter } from '@flowkit/adapter-rest';
+import { createApprovalClient } from '@flowkit/headless';
+
+const client = createApprovalClient({
+  adapter: createRestAdapter({
+    baseUrl: 'https://approval.example.com/api',
+    getToken: () => sessionStorage.getItem('access_token') ?? undefined,
+    // Enable only when the backend provides both guarantees. Defaults are false.
+    capabilities: { idempotency: true, optimisticConcurrency: true },
+  }),
+  actor: { id: 'user-001' },
+});
+```
+
+Action commands automatically include the task and instance `revision`. A 409 is exposed as `FLOW_CONFLICT`; reload the task before deciding whether to retry instead of mutating page state locally.
 
 ## Repository conventions
 

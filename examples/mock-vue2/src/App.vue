@@ -22,7 +22,14 @@ export default Vue.extend({
   data(): { selected: ApprovalTask | null; snapshot: ApprovalState; unsubscribe: Unsubscribe | null } {
     return {
       selected: null,
-      snapshot: { tasks: [], selectedTask: null, history: [], loading: false, error: null },
+      snapshot: {
+        tasks: [],
+        selectedTask: null,
+        selectedInstance: null,
+        history: [],
+        loading: false,
+        error: null,
+      },
       unsubscribe: null,
     };
   },

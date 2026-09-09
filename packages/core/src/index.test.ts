@@ -13,6 +13,7 @@ const task: ApprovalTask = {
   instanceId: 'instance-001',
   name: '审批',
   status: 'todo',
+  revision: 1,
   priority: 'normal',
   createdAt: '2026-01-01',
   actions: [{ key: ACTION_KEY.APPROVE, enabled: true, name: '同意' }],
@@ -23,13 +24,14 @@ const instance: WorkflowInstance = {
   definitionVersion: 1,
   title: '测试',
   status: 'running',
+  revision: 1,
   startedAt: '2026-01-01',
 };
 
-assert.equal(
-  applyTaskAction(task, instance, ACTION_KEY.APPROVE, '2026-01-01').task.status,
-  'done',
-);
+const transitioned = applyTaskAction(task, instance, ACTION_KEY.APPROVE, '2026-01-01');
+assert.equal(transitioned.task.status, 'done');
+assert.equal(transitioned.task.revision, 2);
+assert.equal(transitioned.instance?.revision, 2);
 assert.throws(
   () => applyTaskAction({ ...task, status: 'done' }, instance, ACTION_KEY.APPROVE),
   (error: unknown) =>

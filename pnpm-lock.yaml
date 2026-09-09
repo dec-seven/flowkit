@@ -49,6 +49,12 @@ importers:
         specifier: workspace:*
         version: link:../core
 
+  packages/adapter-rest:
+    dependencies:
+      '@flowkit/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/core: {}
 
   packages/form: {}

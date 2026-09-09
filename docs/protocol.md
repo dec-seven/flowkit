@@ -33,6 +33,7 @@ type WorkflowInstance = {
   businessKey?: string;
   title: string;
   status: 'running' | 'completed' | 'terminated' | 'suspended';
+  revision: number;
   startedAt: string;
   endedAt?: string;
   startedBy?: string;
@@ -50,6 +51,7 @@ type ApprovalTask = {
   assigneeName?: string;
   candidateGroupIds?: string[];
   status: 'todo' | 'claimed' | 'done' | 'terminated';
+  revision: number;
   priority: 'low' | 'normal' | 'high' | 'urgent';
   createdAt: string;
   dueAt?: string;
@@ -98,3 +100,60 @@ type ApprovalFormData = {
 ```
 
 Workflow actions can submit form values, but form validation remains a form-layer concern. Headless workflow state should not depend on a specific form implementation.
+
+## Commands, idempotency, and revisions
+
+Starting a flow and executing a task action are commands. A command must not be represented as a direct status update because only the backend workflow engine may decide the resulting state.
+
+```ts
+type StartFlowInput = {
+  definitionKey: string;
+  definitionVersion?: number;
+  businessKey?: string;
+  title?: string;
+  formValues?: Record<string, unknown>;
+  idempotencyKey: string;
+};
+
+type SubmitActionInput = {
+  taskId: string;
+  actionKey: ApprovalAction['key'];
+  idempotencyKey: string;
+  expectedTaskRevision: number;
+  expectedInstanceRevision: number;
+  comment?: string;
+  formValues?: Record<string, unknown>;
+};
+```
+
+`idempotencyKey` identifies one logical command. Retrying that command with the same key must return the original result without applying the transition or appending history again. A replayed result sets `replayed: true`.
+
+`revision` is a server-owned, monotonically increasing version. Task commands carry both revisions observed by the caller. If either has changed, the adapter throws `FlowError` with code `FLOW_CONFLICT` and details containing `resource`, `currentTaskRevision`, `currentInstanceRevision`, and `retryable`.
+
+## Adapter capabilities
+
+Every adapter declares whether its backend actually guarantees idempotency and optimistic concurrency:
+
+```ts
+type AdapterCapabilities = {
+  idempotency: boolean;
+  optimisticConcurrency: boolean;
+  startFlow?: boolean;
+  definitions?: boolean;
+  formSchemas?: boolean;
+};
+```
+
+Headless must reject a protected command when the corresponding capability is false. Passing an idempotency key to a server that ignores it is not an idempotency guarantee.
+
+## Error codes
+
+Adapters normalize transport and backend failures into these stable codes:
+
+- `FLOW_INVALID_ACTION`: the command or its required input is invalid;
+- `FLOW_FORBIDDEN`: the current actor is not allowed to perform it;
+- `FLOW_AUTH_EXPIRED`: authentication is missing or expired;
+- `FLOW_CAPABILITY_UNSUPPORTED`: the adapter cannot guarantee a requested feature;
+- `FLOW_CONFLICT`: one of the expected revisions is stale;
+- `FLOW_NOT_FOUND`: the requested workflow resource does not exist;
+- `FLOW_TRIGGER_FAILED`: the backend or a registered trigger failed.
